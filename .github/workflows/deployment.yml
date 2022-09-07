@@ -1,0 +1,74 @@
+name: Deployment
+on:
+    push:
+        branches:
+            - 'development'
+            - 'production'
+        tags:
+            - '*'
+    workflow_dispatch:
+        inputs:
+            verbosity:
+                required: true
+                default: 'v'
+                description: >
+                    Verbosity for Composer commands.
+                    Options: 'v' (verbose), 'vv' (very verbose), or 'q' (quite).
+                    Anything else means default verbosity.
+            dispatch_target_only:
+                required: false
+                description: >
+                    Only deploy to given VIP branch, when repo configuration targets multiple
+                    VIP branches for the current branch.
+            dispatch_id:
+                required: false
+                description: >
+                    Identifier for the dispatch event.
+                    For REST API, ignore when triggering manually.
+            dispatch_source_name:
+                required: false
+                description: >
+                    The name of package that triggered the dispatch event.
+                    For REST API, ignore when triggering manually.
+            dispatch_source_version:
+                required: false
+                description: >
+                    Alternative Composer requirement the package that triggered the dispatch event.
+                    For REST API, ignore when triggering manually.
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        if: ${{ (github.event_name == 'workflow_dispatch') || !contains(github.event.head_commit.message, 'skip deploy') }}
+        steps:
+            -   name: Configure Git
+                run: |
+                    git config --global user.email "${{ secrets.INPSYDE_BOT_EMAIL }}"
+                    git config --global user.name "${{ secrets.INPSYDE_BOT_USER }}"
+
+            -   name: Configure SSH key
+                uses: webfactory/ssh-agent@v0.4.1
+                with:
+                    ssh-private-key: ${{ secrets.INPSYDE_BOT_KEY }}
+
+            -   name: Checkout
+                uses: actions/checkout@v2
+
+            -   name: Checkout vip-website-deploy-action
+                uses: actions/checkout@v2
+                with:
+                    repository: inpsyde/vip-website-deploy-action
+                    ref: master
+                    ssh-key: ${{ secrets.INPSYDE_BOT_KEY }}
+                    path: ./.github/actions/vip-website-deploy-action
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 7.4
+
+            -   name: Deploy to VIP
+                uses: ./.github/actions/vip-website-deploy-action
+                with:
+                    api_user: ${{ secrets.INPSYDE_BOT_USER }}
+                    api_token: ${{ secrets.INPSYDE_BOT_API_TOKEN }}
+                    verbosity: ${{ github.event.inputs.verbosity }}

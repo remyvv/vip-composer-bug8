@@ -1,0 +1,27 @@
+{
+    "shared-env": {
+        "ENCORE_ENV": "dev",
+        "ASSETS_COMPILER": "development"
+    },
+    "branches": {
+        "development": {
+            "target": ["develop"]
+        },
+        "production": {
+            "target": ["preprod"],
+            "protected": "yes",
+            "env": {
+                "ENCORE_ENV": "prod",
+                "ASSETS_COMPILER": "production"
+            }
+        }
+    },
+    "tags": {
+        "target": ["master"],
+        "protected": "yes",
+        "env": {
+            "ENCORE_ENV": "prod",
+            "ASSETS_COMPILER": "production"
+        }
+    }
+}

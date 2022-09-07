@@ -1,0 +1,86 @@
+version: '3.7'
+
+services:
+
+    nginx:
+        image: nginx:1.17-alpine
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            - ../:/var/www/wordpress:ro
+            - ./data/logs/nginx:/var/log/nginx/:delegated
+            - ./config/nginx/conf.d:/etc/nginx/conf.d:ro
+            - certificates:/etc/nginx/certs:delegated
+        depends_on:
+            - php
+            - phpmyadmin
+
+    php:
+        build:
+            context: .
+            dockerfile: ./php/Dockerfile
+            args:
+                COMPOSER_HOME: ${COMPOSER_HOME}
+                PROJECT_DOMAIN: ${PROJECT_DOMAIN}
+        working_dir: /var/www/wordpress
+        environment:
+            COMPOSER_ALLOW_SUPERUSER: 1
+            COMPOSER_HOME: ${COMPOSER_HOME}
+            PROJECT_DOMAIN: ${PROJECT_DOMAIN}
+        depends_on:
+            - mysql
+        volumes:
+            - ../:/var/www/wordpress:delegated
+            - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini:cached
+            - ./data/composer:${COMPOSER_HOME}:delegated
+            - ./data/logs/php:/var/log:delegated
+            - certificates:/certs
+
+    mysql:
+        image: mysql:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: wordpress
+        volumes:
+            - ./config/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+            - dbdata:/var/lib/mysql
+        ports:
+            - 53307:3306
+
+    phpmyadmin:
+        image: phpmyadmin:5
+        environment:
+            PMA_HOST: mysql
+        volumes:
+            - ./config/php/php.ini:/usr/local/etc/php/conf.d/phpmyadmin.ini
+            - phpmyadmindata:/usr/src/phpmyadmin
+        depends_on:
+            - mysql
+
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:5.6.16
+        ports:
+            - 9200:9200
+        environment:
+            ES_JAVA_OPTS: '-Xms450m -Xmx450m'
+        mem_limit: 1024M
+        mem_reservation: 1024M
+        volumes:
+            - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:cached
+            - ./config/elasticsearch/plugins:/usr/share/elasticsearch/plugins:cached
+            - esdata:/usr/share/elasticsearch/data:delegated
+
+    mailhog:
+        image: mailhog/mailhog
+        ports:
+            - 8081:8025
+
+    memcached:
+        image: memcached:1.6.7-alpine
+
+volumes:
+    certificates:
+    phpmyadmindata:
+    dbdata:
+    esdata: {}

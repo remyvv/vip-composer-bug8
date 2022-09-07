@@ -1,0 +1,71 @@
+{
+    "name": "inpsyde/vip-composer-bug8",
+    "description": "Sample project to demonstrate vip-composer-plugin#8",
+    "license": "proprietary",
+    "type": "project",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=7.4",
+        "ext-json": "*",
+        "inpsyde/composer-assets-compiler": "^2",
+        "inpsyde/vip-composer-plugin": "^1",
+        "inpsyde/wp-translation-downloader": "^2",
+        "inpsyde/wp-app-container": "^1.3",
+        "inpsyde/wp-stash": "^3.3"
+    },
+    "require-dev": {
+        "roave/security-advisories": "@dev"
+    },
+    "autoload": {
+        "exclude-from-classmap": [
+            "**/composer-assets-compiler/**",
+            "**/vip-composer-plugin/**",
+            "**/wp-translation-downloader/**"
+        ]
+    },
+    "extra": {
+        "vip-composer": {
+            "wordpress": {
+                "version": "5.*",
+                "local-dir": "public"
+            },
+            "plugins-autoload": {
+                "exclude": []
+            },
+            "git": {
+                "url": "https://github.com/Automattic/vip-go-skeleton.git",
+                "branch": "master"
+            }
+        },
+        "composer-asset-compiler": {
+            "wipe-node-modules": false,
+            "auto-run": false,
+            "max-processes": 12
+        },
+        "wp-translation-downloader": "./wp-translation-downloader.json"
+    },
+    "config": {
+        "vendor-dir": "vip/client-mu-plugins/vendor",
+        "optimize-autoloader": true,
+        "process-timeout": 0,
+        "platform": {
+            "php": "7.4"
+        },
+        "allow-plugins": {
+            "inpsyde/composer-assets-compiler": true,
+            "inpsyde/vip-composer-plugin": true,
+            "composer/installers": true,
+            "inpsyde/wp-translation-downloader": true
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://repo.packagist.com/inpsyde/"
+        },
+        {
+            "packagist.org": false
+        }
+    ]
+}

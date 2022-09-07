@@ -1,0 +1,7 @@
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = vip-composer-bug8.local
+DNS.2 = pma.vip-composer-bug8.local

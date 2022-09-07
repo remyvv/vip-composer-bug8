@@ -1,0 +1,11 @@
+services:
+
+    php:
+        environment:
+            XDEBUG_CONFIG: "remote_enable=1 remote_host=xxx.xxx.xxx.xxx remote_port=9000 idekey=PHPSTORM remote_autostart=1"
+            COMPOSER_AUTH: '{"github-oauth": {"github.com": "<ADD YOUR GITHUB PAT HERE>"}}'
+            GITHUB_USER_NAME: '<ADD YOUR GITHUB USERNAME HERE>'
+            GITHUB_API_TOKEN: '<ADD YOUR GITHUB PAT HERE>'
+        volumes:
+            # ensure the path on the left of the `:` matches your local SSH key
+            - ~/.ssh/id_rsa:/home/vipgo/.ssh/id_rsa:cached
